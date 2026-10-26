@@ -37,18 +37,21 @@ Google umí obojí, co potřebujeme:
 
 ### Doporučené nastavení
 
-1. **Založ samostatný Google účet pro gym** (např. `utvs.kola@gmail.com`), ne osobní. Rezervace pak nejsou vázané na jednoho člověka a správu lze předat.
-2. *Google Calendar → Vytvořit → Plán schůzek*:
-   - délka slotu (např. 60 min), dostupné hodiny podle otvíračky gymu,
-   - *Rezervační okno*: max. 7 dní dopředu, min. např. 1 h předem,
-   - povinné údaje: jméno, e-mail (ideálně i poznámka „číslo kola“).
-   - Odkaz na rezervační stránku zkopíruj do `bookingUrl` v `assets/js/config.js`.
-3. **Více kol:** základní (bezplatná) verze plánu schůzek umožňuje 1 rezervaci na slot. Nejjednodušší je **jeden plán schůzek na každé kolo** („Kolo 1“, „Kolo 2“…). U každého pak vypni *Kontrolovat dostupnost v kalendářích*, jinak by rezervace kola 1 zablokovala stejný čas u kola 2. Na stránce pak stačí odkaz na každý plán (lze rozšířit `config.js`).
-4. **Zveřejnění kalendáře:** *Nastavení kalendáře → Oprávnění k přístupu → Zpřístupnit veřejnosti* a zvol **„Zobrazit pouze informace o volném čase / zaneprázdnění (skrýt podrobnosti)“**. Veřejnost tak uvidí jen „Obsazeno“, ne jména (GDPR).
-5. *Nastavení kalendáře → Integrace kalendáře → ID kalendáře* zkopíruj do `calendarId` v `assets/js/config.js`.
-   (Pro primární kalendář účtu je ID přímo e-mailová adresa účtu.)
+Kalendáře spravuje účet **utvs.smartbike@gmail.com**. Každé kolo má **vlastní kalendář** (`Bike1`, `Bike2`) a vlastní plán schůzek; hlavní kalendář účtu se nesdílí.
 
-Web pak automaticky zobrazí týdenní pohled (na mobilu seznam) a tlačítka pro odběr.
+Pro každé kolo:
+
+1. **Vytvoř kalendář:** *Nastavení → Přidat kalendář → Vytvořit nový kalendář* → název `Bike1`.
+2. **Zveřejni ho:** *Nastavení kalendáře Bike1 → Oprávnění k přístupu k událostem → Zpřístupnit veřejnosti* → **„Zobrazit pouze informace o volném čase / zaneprázdnění (skrýt podrobnosti)“**. Veřejnost uvidí jen „Obsazeno“, ne jména (GDPR).
+3. **ID kalendáře:** *Integrace kalendáře → ID kalendáře* (`…@group.calendar.google.com`) zkopíruj do `bikes[].calendarId` v `assets/js/config.js`.
+4. **Plán schůzek:** *Vytvořit → Plán schůzek* → název `Bike1`, délka slotu (např. 60 min), hodiny podle otvíračky, rezervační okno max. 7 dní dopředu.
+   - Pokud jde vybrat, ve kterém kalendáři se rezervace vytvářejí, zvol `Bike1`.
+   - U *Kontrolovat dostupnost v kalendářích* nech zaškrtnutý jen `Bike1`, jinak by rezervace jednoho kola blokovala druhé.
+   - Odkaz na rezervační stránku zkopíruj do `bikes[].bookingUrl`.
+
+Kolo s prázdným `calendarId` se na webu nezobrazí, takže `Bike2` stačí doplnit, až bude potřeba. Web vloží všechny kalendáře do jednoho týdenního pohledu (každé kolo jinou barvou, na mobilu seznam) a ke každému kolu přidá tlačítko pro rezervaci a odkazy na odběr.
+
+> **Pozor:** u bezplatného Gmail účtu může Google vytvářet rezervace z plánu schůzek jen do **hlavního** kalendáře. Pokud v nastavení plánu výběr kalendáře chybí, řešení je ruční: rezervace se objeví v hlavním kalendáři a je potřeba ji přesunout do `Bike1`/`Bike2` (u události *Kalendář → Bike1*), nebo zvážit Microsoft Bookings / Cal.com.
 
 ### Alternativy, kdyby Google nestačil
 

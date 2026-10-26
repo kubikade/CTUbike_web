@@ -28,13 +28,15 @@
       <h1>Rezervace</h1>
       <p class="lead">V kalendáři vidíš, kdy jsou kola obsazená. Volný termín si zarezervuješ přes rezervační formulář – po potvrzení ti přijde e-mail s pozvánkou.</p>
 
-      <div class="btn-row">
-        <a class="btn" id="booking-link" href="#" target="_blank" rel="noopener">Rezervovat termín</a>
-        <a class="btn secondary" id="subscribe-google" href="#" target="_blank" rel="noopener">Přidat do Google kalendáře</a>
-        <a class="btn secondary" id="subscribe-ics" href="#">Odběr iCal (Outlook, Apple)</a>
-      </div>
+      <div class="btn-row" id="booking-links"></div>
 
       <div class="calendar-frame" id="calendar"></div>
+
+      <section>
+        <h2>Odběr kalendáře</h2>
+        <p>Přidej si obsazenost kol do svého kalendáře:</p>
+        <ul class="subscribe" id="subscribe-links"></ul>
+      </section>
 
       <h2>Pravidla rezervací</h2>
       <ul>
@@ -57,7 +59,8 @@
     </div>
   </footer>
 
-  <script src="assets/js/config.js"></script>
-  <script src="assets/js/calendar.js"></script>
+  <!-- ?v= zvyš při změně skriptů, ať prohlížeče nenačtou starou verzi z cache -->
+  <script src="assets/js/config.js?v=2"></script>
+  <script src="assets/js/calendar.js?v=2"></script>
 </body>
 </html>

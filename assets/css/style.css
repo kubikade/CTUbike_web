@@ -271,6 +271,14 @@ kbd {
   border: 0;
   display: block;
 }
+.subscribe { list-style: none; padding: 0; }
+.subscribe li { margin: 6px 0; }
+.subscribe .dot {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
 .calendar-placeholder {
   padding: 48px 24px;
   text-align: center;
