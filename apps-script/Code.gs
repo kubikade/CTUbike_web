@@ -150,10 +150,8 @@ function book_(data) {
     const ev = cal.createEvent('Rezervace (čeká na potvrzení)', start, end, {
       description: 'Jméno: ' + name + '\nE-mail: ' + email,
     });
-    ev.setTag('token', token);
-    ev.setTag('email', email);
-    ev.setTag('status', 'pending');
-    ev.setTag('created', String(Date.now()));
+    // Všechna metadata v jednom tagu – každé volání setTag je samostatný (pomalý) zápis do kalendáře.
+    setMeta_(ev, { token: token, email: email, status: 'pending', created: Date.now() });
 
     try {
       sendConfirmationEmail_(email, name, bike, start, end, token);
@@ -178,12 +176,14 @@ function confirm_(token) {
   const ev = found.event;
   const when = describe_(found.bike, ev.getStartTime(), ev.getEndTime());
 
-  if (ev.getTag('status') === 'pending') {
-    if (isExpired_(ev)) {
+  const meta = found.meta;
+  if (meta.status === 'pending') {
+    if (isExpired_(meta)) {
       ev.deleteEvent();
       return { title: 'Rezervace propadla', text: 'Nebyla potvrzena včas. Vytvoř prosím novou.' };
     }
-    ev.setTag('status', 'confirmed');
+    meta.status = 'confirmed';
+    setMeta_(ev, meta);
     ev.setTitle('Rezervace');
   }
   return {
@@ -216,7 +216,8 @@ function setup() {
 function cleanupPending() {
   Object.keys(CONFIG.BIKES).forEach(function (bike) {
     upcomingEvents_(calendar_(bike)).forEach(function (ev) {
-      if (ev.getTag('status') === 'pending' && isExpired_(ev)) ev.deleteEvent();
+      const meta = getMeta_(ev);
+      if (meta && meta.status === 'pending' && isExpired_(meta)) ev.deleteEvent();
     });
   });
 }
@@ -272,7 +273,8 @@ function minutesBookedBy_(email, day) {
   let total = 0;
   Object.keys(CONFIG.BIKES).forEach(function (bike) {
     calendar_(bike).getEvents(day, dayEnd).forEach(function (ev) {
-      if (ev.getTag('email') === email) total += (ev.getEndTime() - ev.getStartTime()) / 60000;
+      const meta = getMeta_(ev);
+      if (meta && meta.email === email) total += (ev.getEndTime() - ev.getStartTime()) / 60000;
     });
   });
   return total;
@@ -298,15 +300,25 @@ function findByToken_(token) {
   for (let i = 0; i < bikes.length; i++) {
     const events = upcomingEvents_(calendar_(bikes[i]));
     for (let j = 0; j < events.length; j++) {
-      if (events[j].getTag('token') === token) return { bike: bikes[i], event: events[j] };
+      const meta = getMeta_(events[j]);
+      if (meta && meta.token === token) return { bike: bikes[i], event: events[j], meta: meta };
     }
   }
   return null;
 }
 
-function isExpired_(ev) {
-  const created = Number(ev.getTag('created') || 0);
-  return Date.now() - created > CONFIG.PENDING_TIMEOUT_MINUTES * 60000;
+/** Metadata rezervace (token, e-mail, stav, čas vytvoření); null u událostí, které nevytvořil skript. */
+function getMeta_(ev) {
+  const raw = ev.getTag('data');
+  return raw ? JSON.parse(raw) : null;
+}
+
+function setMeta_(ev, meta) {
+  ev.setTag('data', JSON.stringify(meta));
+}
+
+function isExpired_(meta) {
+  return Date.now() - meta.created > CONFIG.PENDING_TIMEOUT_MINUTES * 60000;
 }
 
 function describe_(bike, start, end) {

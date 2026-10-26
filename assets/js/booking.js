@@ -157,7 +157,7 @@
 
   function loadDay() {
     if (!f.bike.value || !f.date.value) return;
-    setStatus("Načítám obsazenost…");
+    setStatus("Načítám obsazenost…", "busy");
     submit.disabled = true;
     return call({ action: "day", bike: f.bike.value, date: f.date.value })
       .then(function (d) {
@@ -203,8 +203,9 @@
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     if (!form.reportValidity()) return;
-    submit.disabled = true;
-    setStatus("Odesílám rezervaci…");
+    var booked = { start: f.start.value, end: hhmm(toMin(f.start.value) + Number(f.duration.value)) };
+    setEnabled(false);
+    setStatus("Ukládám rezervaci a posílám potvrzovací e-mail, chvilku to trvá…", "busy");
     call(null, {
       bike: f.bike.value,
       date: f.date.value,
@@ -215,12 +216,17 @@
       website: f.website.value,
     })
       .then(function (r) {
+        // Obsazenost doplníme lokálně – nové načtení ze serveru by trvalo další sekundy.
+        day.busy.push(booked);
+        setEnabled(true);
+        renderTimeline();
+        renderStarts();
+        submit.disabled = !f.start.value;
         setStatus(r.message, "ok");
-        return loadDay().then(function () { setStatus(r.message, "ok"); });
       })
       .catch(function (err) {
+        setEnabled(true);
         setStatus(err.message, "error");
-        submit.disabled = false;
       });
   });
 })();

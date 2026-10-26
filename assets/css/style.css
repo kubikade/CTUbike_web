@@ -307,6 +307,18 @@ kbd {
 .form-status { margin: 4px 0 0; font-size: 15px; color: var(--muted); min-height: 1.5em; }
 .form-status.ok { color: #1a7f37; font-weight: 600; }
 .form-status.error { color: #c62828; }
+.form-status.busy::before {
+  content: "";
+  display: inline-block;
+  width: 14px; height: 14px;
+  margin-right: 8px;
+  vertical-align: -2px;
+  border: 2px solid var(--cvut-blue-light);
+  border-top-color: var(--cvut-blue);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .timeline { padding-bottom: 20px; }
 .timeline-bar {
