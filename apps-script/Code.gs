@@ -358,26 +358,21 @@ function sendConfirmationEmail_(email, name, bike, start, end, token) {
   const when = describe_(bike, start, end);
   const confirmUrl = emailUrl_('confirm', token);
   const cancelUrl = emailUrl_('cancel', token);
-  // target=_blank: některé poštovní klienty jinak otevírají odkaz uvnitř okna s e-mailem, kde stránka nefunguje.
-  const link = ' target="_blank" rel="noopener"';
-  const btn = 'display:inline-block;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:600;';
+  // Záměrně jen prostý text bez HTML: webmaily (např. Horde) zobrazují HTML e-maily v izolovaném rámu,
+  // ze kterého kliknutí na odkaz nic neotevře. Odkazy v prostém textu převádí webmail na vlastní,
+  // které se otevřou v nové záložce.
   MailApp.sendEmail({
     to: email,
     name: 'Smart kola ÚTVS ČVUT',
     subject: 'Potvrď rezervaci: ' + when,
-    body: 'Ahoj ' + name + ',\n\nrezervace: ' + when + '\n\nPotvrď ji do ' + CONFIG.PENDING_TIMEOUT_MINUTES +
-      ' minut: ' + confirmUrl + '\nZrušit: ' + cancelUrl + '\n',
-    htmlBody:
-      '<div style="font-family:system-ui,sans-serif;font-size:16px;color:#1a1f2b">' +
-      '<p>Ahoj ' + escape_(name) + ',</p>' +
-      '<p>děkujeme za rezervaci <strong>' + escape_(when) + '</strong>.</p>' +
-      '<p>Potvrď ji prosím do ' + CONFIG.PENDING_TIMEOUT_MINUTES + ' minut, jinak propadne:</p>' +
-      '<p><a href="' + confirmUrl + '"' + link + ' style="' + btn + 'background:#0065bd;color:#fff">Potvrdit rezervaci</a></p>' +
-      '<p style="color:#5b6474;font-size:14px">Nemůžeš přijít? <a href="' + cancelUrl + '"' + link + '>Zrušit rezervaci</a> ' +
-      '(odkaz si schovej, platí i po potvrzení).</p>' +
-      '<p style="color:#5b6474;font-size:13px">Tlačítko nefunguje? Zkopíruj tento odkaz do nové záložky prohlížeče:<br>' +
-      '<span style="word-break:break-all">' + escape_(confirmUrl) + '</span></p>' +
-      '</div>',
+    body:
+      'Ahoj ' + name + ',\n\n' +
+      'děkujeme za rezervaci: ' + when + '\n\n' +
+      'POTVRĎ ji prosím do ' + CONFIG.PENDING_TIMEOUT_MINUTES + ' minut, jinak propadne:\n' +
+      confirmUrl + '\n\n' +
+      'Nemůžeš přijít? Rezervaci zrušíš tady (odkaz si schovej, platí i po potvrzení):\n' +
+      cancelUrl + '\n\n' +
+      'Smart kola ÚTVS ČVUT\n',
   });
 }
 
