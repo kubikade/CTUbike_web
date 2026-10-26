@@ -162,13 +162,16 @@ function book_(data) {
     const ev = cal.createEvent('Rezervace (čeká na potvrzení)', start, end, {
       description: 'Jméno: ' + name + '\nE-mail: ' + email,
     });
-    // Všechna metadata v jednom tagu – každé volání setTag je samostatný (pomalý) zápis do kalendáře.
-    setMeta_(ev, { token: token, email: email, status: 'pending', created: Date.now() });
+    saveBooking_(token, {
+      bike: bike, eventId: ev.getId(), email: email, status: 'pending',
+      created: Date.now(), start: start.getTime(), end: end.getTime(),
+    });
 
     try {
       sendConfirmationEmail_(email, name, bike, start, end, token);
     } catch (err) {
       ev.deleteEvent();
+      deleteBooking_(token);
       throw new Error('Nepodařilo se odeslat potvrzovací e-mail, zkus to prosím znovu.');
     }
   } finally {
@@ -183,19 +186,19 @@ function book_(data) {
 }
 
 function confirm_(token) {
-  const found = findByToken_(token);
-  if (!found) return { title: 'Rezervace nenalezena', text: 'Rezervace mohla propadnout nebo byla zrušena. Vytvoř prosím novou.' };
-  const ev = found.event;
-  const when = describe_(found.bike, ev.getStartTime(), ev.getEndTime());
+  const b = loadBooking_(token);
+  if (!b) return { title: 'Rezervace nenalezena', text: 'Rezervace mohla propadnout nebo byla zrušena. Vytvoř prosím novou.' };
+  const when = describe_(b.bike, new Date(b.start), new Date(b.end));
 
-  const meta = found.meta;
-  if (meta.status === 'pending') {
-    if (isExpired_(meta)) {
-      ev.deleteEvent();
+  if (b.status === 'pending') {
+    const ev = event_(b);
+    if (!ev || isExpired_(b)) {
+      if (ev) ev.deleteEvent();
+      deleteBooking_(token);
       return { title: 'Rezervace propadla', text: 'Nebyla potvrzena včas. Vytvoř prosím novou.' };
     }
-    meta.status = 'confirmed';
-    setMeta_(ev, meta);
+    b.status = 'confirmed';
+    saveBooking_(token, b);
     ev.setTitle('Rezervace');
   }
   return { title: 'Rezervace potvrzena', text: when + '. Těšíme se na tebe!', canCancel: true };
@@ -206,25 +209,27 @@ function confirm_(token) {
  * z e-mailů automaticky a jednokrokový odkaz by rezervaci zrušil bez vědomí jezdce.
  */
 function cancelPrompt_(token) {
-  const found = findByToken_(token);
-  if (!found) return { title: 'Rezervace nenalezena', text: 'Rezervace už byla zrušena nebo propadla.' };
-  const ev = found.event;
-  return { title: 'Zrušit rezervaci?', text: describe_(found.bike, ev.getStartTime(), ev.getEndTime()), askCancel: true };
+  const b = loadBooking_(token);
+  if (!b) return { title: 'Rezervace nenalezena', text: 'Rezervace už byla zrušena nebo propadla.' };
+  return { title: 'Zrušit rezervaci?', text: describe_(b.bike, new Date(b.start), new Date(b.end)), askCancel: true };
 }
 
 function cancel_(token) {
-  const found = findByToken_(token);
-  if (!found) return { title: 'Rezervace nenalezena', text: 'Rezervace už byla zrušena nebo propadla.' };
-  const ev = found.event;
-  if (ev.getStartTime() < new Date()) return { title: 'Nelze zrušit', text: 'Rezervace už začala nebo proběhla.' };
-  const when = describe_(found.bike, ev.getStartTime(), ev.getEndTime());
-  ev.deleteEvent();
-  return { title: 'Rezervace zrušena', text: when + ' je znovu volné. Díky za zrušení včas.' };
+  const b = loadBooking_(token);
+  if (!b) return { title: 'Rezervace nenalezena', text: 'Rezervace už byla zrušena nebo propadla.' };
+  if (b.start < Date.now()) return { title: 'Nelze zrušit', text: 'Rezervace už začala nebo proběhla.' };
+  const ev = event_(b);
+  if (ev) ev.deleteEvent();
+  deleteBooking_(token);
+  return {
+    title: 'Rezervace zrušena',
+    text: describe_(b.bike, new Date(b.start), new Date(b.end)) + ' je znovu volné. Díky za zrušení včas.',
+  };
 }
 
 // ===== Údržba =====
 
-/** Spusť jednou ručně v editoru – nastaví pravidelné mazání nepotvrzených rezervací. */
+/** Spusť jednou ručně v editoru – nastaví pravidelný úklid rezervací. */
 function setup() {
   ScriptApp.getProjectTriggers()
     .filter(function (t) { return t.getHandlerFunction() === 'cleanupPending'; })
@@ -232,13 +237,54 @@ function setup() {
   ScriptApp.newTrigger('cleanupPending').timeBased().everyMinutes(10).create();
 }
 
+/** Smaže propadlé nepotvrzené rezervace a záznamy o rezervacích, které už proběhly. */
 function cleanupPending() {
-  Object.keys(CONFIG.BIKES).forEach(function (bike) {
-    upcomingEvents_(calendar_(bike)).forEach(function (ev) {
-      const meta = getMeta_(ev);
-      if (meta && meta.status === 'pending' && isExpired_(meta)) ev.deleteEvent();
-    });
+  const dayAgo = Date.now() - 24 * 3600 * 1000;
+  allBookings_().forEach(function (item) {
+    const b = item.booking;
+    if (b.status === 'pending' && isExpired_(b)) {
+      const ev = event_(b);
+      if (ev) ev.deleteEvent();
+      deleteBooking_(item.token);
+    } else if (b.end < dayAgo || !event_(b)) {
+      // proběhlá rezervace, nebo událost správce ručně smazal z kalendáře
+      deleteBooking_(item.token);
+    }
   });
+}
+
+// ===== Úložiště rezervací =====
+// Údaje o rezervaci (kolo, ID události, e-mail, stav, časy) jsou ve Script Properties pod klíčem
+// „r:<token>“. Hledání podle tokenu je tak jedno rychlé čtení místo procházení kalendáře.
+
+function store_() {
+  return PropertiesService.getScriptProperties();
+}
+
+function saveBooking_(token, b) {
+  store_().setProperty('r:' + token, JSON.stringify(b));
+}
+
+function loadBooking_(token) {
+  if (!/^[0-9a-f-]{36}$/.test(token || '')) return null;
+  const raw = store_().getProperty('r:' + token);
+  return raw ? JSON.parse(raw) : null;
+}
+
+function deleteBooking_(token) {
+  store_().deleteProperty('r:' + token);
+}
+
+function allBookings_() {
+  const all = store_().getProperties();
+  return Object.keys(all)
+    .filter(function (k) { return k.indexOf('r:') === 0; })
+    .map(function (k) { return { token: k.slice(2), booking: JSON.parse(all[k]) }; });
+}
+
+/** Událost rezervace v kalendáři kola; null, pokud ji mezitím někdo smazal. */
+function event_(b) {
+  return calendar_(b.bike).getEventById(b.eventId);
 }
 
 // ===== Pomocné funkce =====
@@ -288,15 +334,12 @@ function overlapping_(cal, start, end) {
 }
 
 function minutesBookedBy_(email, day) {
-  const dayEnd = at_(day, 24 * 60);
-  let total = 0;
-  Object.keys(CONFIG.BIKES).forEach(function (bike) {
-    calendar_(bike).getEvents(day, dayEnd).forEach(function (ev) {
-      const meta = getMeta_(ev);
-      if (meta && meta.email === email) total += (ev.getEndTime() - ev.getStartTime()) / 60000;
-    });
-  });
-  return total;
+  const from = day.getTime();
+  const to = at_(day, 24 * 60).getTime();
+  return allBookings_().reduce(function (total, item) {
+    const b = item.booking;
+    return b.email === email && b.start >= from && b.start < to ? total + (b.end - b.start) / 60000 : total;
+  }, 0);
 }
 
 function emailAllowed_(email) {
@@ -306,38 +349,8 @@ function emailAllowed_(email) {
   return domains.some(function (d) { return host === d || host.slice(-(d.length + 1)) === '.' + d; });
 }
 
-function upcomingEvents_(cal) {
-  const now = new Date();
-  const from = new Date(now.getTime() - 24 * 3600 * 1000);
-  const to = new Date(now.getTime() + (CONFIG.MAX_DAYS_AHEAD + 2) * 24 * 3600 * 1000);
-  return cal.getEvents(from, to);
-}
-
-function findByToken_(token) {
-  if (!/^[0-9a-f-]{36}$/.test(token || '')) return null;
-  const bikes = Object.keys(CONFIG.BIKES);
-  for (let i = 0; i < bikes.length; i++) {
-    const events = upcomingEvents_(calendar_(bikes[i]));
-    for (let j = 0; j < events.length; j++) {
-      const meta = getMeta_(events[j]);
-      if (meta && meta.token === token) return { bike: bikes[i], event: events[j], meta: meta };
-    }
-  }
-  return null;
-}
-
-/** Metadata rezervace (token, e-mail, stav, čas vytvoření); null u událostí, které nevytvořil skript. */
-function getMeta_(ev) {
-  const raw = ev.getTag('data');
-  return raw ? JSON.parse(raw) : null;
-}
-
-function setMeta_(ev, meta) {
-  ev.setTag('data', JSON.stringify(meta));
-}
-
-function isExpired_(meta) {
-  return Date.now() - meta.created > CONFIG.PENDING_TIMEOUT_MINUTES * 60000;
+function isExpired_(b) {
+  return Date.now() - b.created > CONFIG.PENDING_TIMEOUT_MINUTES * 60000;
 }
 
 function describe_(bike, start, end) {
