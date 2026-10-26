@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Rezervace · Smart kola ÚTVS ČVUT</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="./">
+        <span class="brand-mark"><img src="assets/img/favicon.svg" alt="" width="28" height="28"></span>
+        <span>Smart kola ÚTVS<small>ČVUT · Karlovo náměstí</small></span>
+      </a>
+      <nav class="nav" aria-label="Hlavní navigace">
+        <a href="./">Úvod</a>
+        <a href="navod.html">Návod</a>
+        <a href="rezervace.html">Rezervace</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <section class="booking result" aria-live="polite">
+        <h1 id="r-title">Rezervace</h1>
+        <p class="form-status busy" id="r-text">Načítám…</p>
+        <div class="btn-row" id="r-actions"></div>
+      </section>
+      <p><a href="rezervace.html">← Zpět na rezervace</a></p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>Ústav tělesné výchovy a sportu ČVUT v Praze</span>
+      <span>Neoficiální informační stránka</span>
+    </div>
+  </footer>
+
+  <script src="assets/js/config.js?v=5"></script>
+  <script src="assets/js/confirm.js?v=1"></script>
+</body>
+</html>

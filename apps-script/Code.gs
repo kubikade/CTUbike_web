@@ -9,6 +9,7 @@
  *   GET  ?action=confirm&token=…         potvrzení z e-mailu
  *   GET  ?action=cancel&token=…          dotaz „Opravdu zrušit?“ (odkaz z e-mailu)
  *   GET  ?action=cancel&token=…&sure=1   zrušení
+ *   (s &format=json vrací confirm/cancel JSON místo stránky – používá ho potvrzeni.html)
  *
  * Postup nasazení je v README.md (sekce „Rezervace“).
  */
@@ -18,6 +19,11 @@ const CONFIG = {
 
   // Kam vedou odkazy „Zpět na web“ ze stránek potvrzení / zrušení.
   SITE_URL: 'https://kubikade.github.io/CTUbike_web/rezervace.html',
+
+  // Stránka potvrzení na webu (potvrzeni.html) – načte se hned a se skriptem mluví na pozadí.
+  // Prázdné = odkazy v e-mailu vedou přímo na stránky Apps Scriptu (pomalejší).
+  // Vyplň až poté, co web na GitHub Pages běží.
+  CONFIRM_PAGE_URL: '',
 
   // URL nasazené web appky (stejná jako bookingApiUrl v assets/js/config.js). Z ní se skládají
   // odkazy v e-mailech – ScriptApp.getService().getUrl() často vrací neveřejnou /dev adresu.
@@ -54,13 +60,13 @@ const CONFIG = {
 
 function doGet(e) {
   const p = (e && e.parameter) || {};
-  const isPage = p.action === 'confirm' || p.action === 'cancel';
+  const isPage = (p.action === 'confirm' || p.action === 'cancel') && p.format !== 'json';
   try {
     switch (p.action) {
       case 'config': return json_(publicConfig_());
       case 'day': return json_(getDay_(p.bike, p.date));
-      case 'confirm': return page_(confirm_(p.token));
-      case 'cancel': return page_(p.sure === '1' ? cancel_(p.token) : cancelPrompt_(p.token));
+      case 'confirm': return result_(confirm_(p.token), p);
+      case 'cancel': return result_(p.sure === '1' ? cancel_(p.token) : cancelPrompt_(p.token), p);
       default: return json_({ ok: false, error: 'Neznámá akce.' });
     }
   } catch (err) {
@@ -191,11 +197,7 @@ function confirm_(token) {
     setMeta_(ev, meta);
     ev.setTitle('Rezervace');
   }
-  return {
-    title: 'Rezervace potvrzena',
-    text: when + '. Těšíme se na tebe!',
-    cancelUrl: actionUrl_('cancel', token),
-  };
+  return { title: 'Rezervace potvrzena', text: when + '. Těšíme se na tebe!', canCancel: true };
 }
 
 /**
@@ -206,11 +208,7 @@ function cancelPrompt_(token) {
   const found = findByToken_(token);
   if (!found) return { title: 'Rezervace nenalezena', text: 'Rezervace už byla zrušena nebo propadla.' };
   const ev = found.event;
-  return {
-    title: 'Zrušit rezervaci?',
-    text: describe_(found.bike, ev.getStartTime(), ev.getEndTime()),
-    action: { label: 'Ano, zrušit rezervaci', url: actionUrl_('cancel', token) + '&sure=1' },
-  };
+  return { title: 'Zrušit rezervaci?', text: describe_(found.bike, ev.getStartTime(), ev.getEndTime()), askCancel: true };
 }
 
 function cancel_(token) {
@@ -350,10 +348,18 @@ function actionUrl_(action, token) {
   return CONFIG.WEB_APP_URL + '?action=' + action + '&token=' + encodeURIComponent(token);
 }
 
+/** Odkaz do e-mailu: na rychlou stránku webu, pokud je nastavená, jinak přímo na Apps Script. */
+function emailUrl_(action, token) {
+  if (!CONFIG.CONFIRM_PAGE_URL) return actionUrl_(action, token);
+  return CONFIG.CONFIRM_PAGE_URL + '?action=' + action + '&token=' + encodeURIComponent(token);
+}
+
 function sendConfirmationEmail_(email, name, bike, start, end, token) {
   const when = describe_(bike, start, end);
-  const confirmUrl = actionUrl_('confirm', token);
-  const cancelUrl = actionUrl_('cancel', token);
+  const confirmUrl = emailUrl_('confirm', token);
+  const cancelUrl = emailUrl_('cancel', token);
+  // target=_blank: některé poštovní klienty jinak otevírají odkaz uvnitř okna s e-mailem, kde stránka nefunguje.
+  const link = ' target="_blank" rel="noopener"';
   const btn = 'display:inline-block;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:600;';
   MailApp.sendEmail({
     to: email,
@@ -366,8 +372,8 @@ function sendConfirmationEmail_(email, name, bike, start, end, token) {
       '<p>Ahoj ' + escape_(name) + ',</p>' +
       '<p>děkujeme za rezervaci <strong>' + escape_(when) + '</strong>.</p>' +
       '<p>Potvrď ji prosím do ' + CONFIG.PENDING_TIMEOUT_MINUTES + ' minut, jinak propadne:</p>' +
-      '<p><a href="' + confirmUrl + '" style="' + btn + 'background:#0065bd;color:#fff">Potvrdit rezervaci</a></p>' +
-      '<p style="color:#5b6474;font-size:14px">Nemůžeš přijít? <a href="' + cancelUrl + '">Zrušit rezervaci</a> ' +
+      '<p><a href="' + confirmUrl + '"' + link + ' style="' + btn + 'background:#0065bd;color:#fff">Potvrdit rezervaci</a></p>' +
+      '<p style="color:#5b6474;font-size:14px">Nemůžeš přijít? <a href="' + cancelUrl + '"' + link + '>Zrušit rezervaci</a> ' +
       '(odkaz si schovej, platí i po potvrzení).</p>' +
       '</div>',
   });
@@ -377,15 +383,20 @@ function json_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
 
-function page_(r) {
+function result_(r, p) {
+  if (p.format === 'json') return json_(Object.assign({ ok: true }, r));
+  return page_(r, p.token);
+}
+
+function page_(r, token) {
   const html =
     '<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1">' +
     '<div style="font-family:system-ui,sans-serif;max-width:520px;margin:48px auto;padding:0 16px;color:#1a1f2b">' +
     '<h1 style="color:#0065bd;font-size:26px">' + escape_(r.title) + '</h1>' +
     '<p style="font-size:17px;line-height:1.6">' + escape_(r.text) + '</p>' +
-    (r.action ? '<p><a href="' + escape_(r.action.url) + '" target="_top" style="display:inline-block;padding:10px 18px;' +
-      'border-radius:8px;background:#c62828;color:#fff;text-decoration:none;font-weight:600">' + escape_(r.action.label) + '</a></p>' : '') +
-    (r.cancelUrl ? '<p><a href="' + escape_(r.cancelUrl) + '" target="_top">Zrušit rezervaci</a></p>' : '') +
+    (r.askCancel ? '<p><a href="' + escape_(actionUrl_('cancel', token) + '&sure=1') + '" target="_top" style="display:inline-block;' +
+      'padding:10px 18px;border-radius:8px;background:#c62828;color:#fff;text-decoration:none;font-weight:600">Ano, zrušit rezervaci</a></p>' : '') +
+    (r.canCancel ? '<p><a href="' + escape_(actionUrl_('cancel', token)) + '" target="_top">Zrušit rezervaci</a></p>' : '') +
     '<p><a href="' + CONFIG.SITE_URL + '" target="_top">← Zpět na rezervace</a></p>' +
     '</div>';
   return HtmlService.createHtmlOutput(html).setTitle(r.title);

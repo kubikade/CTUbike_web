@@ -376,3 +376,10 @@ kbd {
   .form { grid-template-columns: 1fr; }
   .booking { padding: 16px; }
 }
+
+/* ===== Stránka potvrzení ===== */
+.result h1 { font-size: 28px; }
+.result .form-status { font-size: 17px; }
+.btn.danger { background: #c62828; border-color: #c62828; cursor: pointer; font: inherit; font-weight: 600; }
+.btn.danger:hover { background: #a31f1f; }
+.btn.danger:disabled { opacity: .45; cursor: not-allowed; }

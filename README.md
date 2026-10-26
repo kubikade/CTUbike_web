@@ -72,6 +72,8 @@ Pro každé kolo pod účtem **utvs.smartbike@gmail.com**:
    - `bookingApiUrl` v `assets/js/config.js`,
    - `CONFIG.WEB_APP_URL` v `Code.gs` (z ní se skládají odkazy Potvrdit / Zrušit v e-mailech) → ulož a nasaď novou verzi (viz níže).
 
+7. Až web poběží na GitHub Pages, vyplň v `Code.gs` `CONFIG.CONFIRM_PAGE_URL` = `https://kubikade.github.io/CTUbike_web/potvrzeni.html` a nasaď novou verzi. Odkazy v e-mailu pak otevřou rychlou stránku webu místo pomalé stránky Apps Scriptu.
+
 **Kontrola:** otevři v prohlížeči `<URL>/exec?action=config`. Měl by se zobrazit JSON s `"ok":true`.
 
 ### Změny skriptu později
