@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rezervace · Smart kola ÚTVS ČVUT</title>
+  <meta name="description" content="Obsazenost a rezervace smart kol Wahoo KICKR Bike Pro v posilovně ÚTVS ČVUT.">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="./">
+        <span class="brand-mark"><img src="assets/img/favicon.svg" alt="" width="28" height="28"></span>
+        <span>Smart kola ÚTVS<small>ČVUT · Karlovo náměstí</small></span>
+      </a>
+      <nav class="nav" aria-label="Hlavní navigace">
+        <a href="./">Úvod</a>
+        <a href="navod.html">Návod</a>
+        <a href="rezervace.html" aria-current="page">Rezervace</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <h1>Rezervace</h1>
+      <p class="lead">V kalendáři vidíš, kdy jsou kola obsazená. Volný termín si zarezervuješ přes rezervační formulář – po potvrzení ti přijde e-mail s pozvánkou.</p>
+
+      <div class="btn-row">
+        <a class="btn" id="booking-link" href="#" target="_blank" rel="noopener">Rezervovat termín</a>
+        <a class="btn secondary" id="subscribe-google" href="#" target="_blank" rel="noopener">Přidat do Google kalendáře</a>
+        <a class="btn secondary" id="subscribe-ics" href="#">Odběr iCal (Outlook, Apple)</a>
+      </div>
+
+      <div class="calendar-frame" id="calendar"></div>
+
+      <h2>Pravidla rezervací</h2>
+      <ul>
+        <li>Jedna rezervace = <strong>1 kolo na 60 minut</strong>. <span class="todo" style="display:inline;padding:2px 8px">potvrdit délku slotu a počet kol</span></li>
+        <li>Rezervovat lze nejdříve <strong>7 dní</strong> dopředu.</li>
+        <li>Pokud nemůžeš přijít, <strong>zruš rezervaci</strong> odkazem v potvrzovacím e-mailu.</li>
+        <li>Při zpoždění o víc než 15 minut může kolo využít někdo jiný.</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Ochrana soukromí:</strong> veřejný kalendář ukazuje jen obsazenost („Obsazeno“), ne jména rezervujících.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>Ústav tělesné výchovy a sportu ČVUT v Praze</span>
+      <span>Neoficiální informační stránka</span>
+    </div>
+  </footer>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/calendar.js"></script>
+</body>
+</html>

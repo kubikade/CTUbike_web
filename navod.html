@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Návod · Smart kola ÚTVS ČVUT</title>
+  <meta name="description" content="Návod pro Wahoo KICKR Bike Pro: aplikace Wahoo, nastavení posedu, propojení s ROUVY.">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="./">
+        <span class="brand-mark"><img src="assets/img/favicon.svg" alt="" width="28" height="28"></span>
+        <span>Smart kola ÚTVS<small>ČVUT · Karlovo náměstí</small></span>
+      </a>
+      <nav class="nav" aria-label="Hlavní navigace">
+        <a href="./">Úvod</a>
+        <a href="navod.html" aria-current="page">Návod</a>
+        <a href="rezervace.html">Rezervace</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <h1>Návod: od příchodu k první jízdě</h1>
+      <p class="lead">Čtyři kroky. Napoprvé počítej zhruba s 15 minutami, příště to zvládneš za dvě.</p>
+
+      <nav class="toc" aria-label="Obsah">
+        <strong>Obsah</strong>
+        <ol>
+          <li><a href="#wahoo">Aplikace Wahoo – spárování, profil jezdce, převody</a></li>
+          <li><a href="#posed">Nastavení posedu – sedlo, řídítka, kliky</a></li>
+          <li><a href="#rouvy">Propojení s ROUVY a první jízda</a></li>
+          <li><a href="#po-jizde">Po jízdě</a></li>
+          <li><a href="#problemy">Když něco nefunguje</a></li>
+        </ol>
+      </nav>
+
+      <!-- ============ 1. WAHOO ============ -->
+      <h2 id="wahoo">1. Aplikace Wahoo</h2>
+      <p>V aplikaci Wahoo si nastavíš svůj profil a zkontroluješ převody. Pro samotnou jízdu ji pak už nepotřebuješ – tu obstará ROUVY.</p>
+
+      <h3>Spárování kola</h3>
+      <ol class="steps">
+        <li>Zapni kolo (vypínač / zapojení do sítě) a počkej, až se rozsvítí LED. <span class="todo">doplnit foto vypínače a LED</span></li>
+        <li>Na telefonu zapni <strong>Bluetooth</strong> a otevři aplikaci <strong>Wahoo</strong>. Přihlas se svým účtem (nebo si ho zdarma založ).</li>
+        <li>Zvol <em>Přidat zařízení / Add device</em> a vyber <strong>KICKR BIKE</strong>. Každé kolo má na rámu štítek s číslem – vyber kolo se stejným ID. <span class="todo">doplnit, jaká ID mají jednotlivá kola v gymu</span></li>
+        <li>Pokud aplikace nabídne <strong>aktualizaci firmwaru</strong>, nech to na správci – během rezervace ji nespouštěj.</li>
+      </ol>
+
+      <h3>Profil jezdce</h3>
+      <p>V profilu vyplň <strong>hmotnost, výšku, věk a FTP</strong> (pokud ho neznáš, nech výchozí hodnotu). Hmotnost je důležitá – podle ní trenažér počítá odpor do kopce a rychlost.</p>
+
+      <h3>Převody (gears)</h3>
+      <p>KICKR Bike Pro nemá skutečný řetěz – převody jsou virtuální a řadíš je tlačítky na řadicích pákách. V aplikaci Wahoo si můžeš zvolit:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Nastavení</th><th>Co to dělá</th><th>Doporučení</th></tr></thead>
+          <tbody>
+            <tr><td>Styl řazení</td><td>Chování pák jako Shimano / SRAM / Campagnolo</td><td>To, na co jsi zvyklý z vlastního kola</td></tr>
+            <tr><td>Převodníky</td><td>Počet a velikost předních převodníků</td><td>Kompakt 50/34</td></tr>
+            <tr><td>Kazeta</td><td>Rozsah zadních pastorků</td><td>11–28 nebo 11–32 (do kopců)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warn">
+        <p><strong>Kolo je sdílené.</strong> Nastavení převodů se ukládá do kola, ne do tvého telefonu. Pokud ho změníš, po jízdě ho vrať na výchozí hodnoty uvedené výše.</p>
+      </div>
+      <div class="todo">ověřit názvy položek v aktuální verzi aplikace Wahoo a doplnit screenshoty</div>
+
+      <!-- ============ 2. POSED ============ -->
+      <h2 id="posed">2. Nastavení posedu</h2>
+      <p>Správný posed je důležitější než jakékoli nastavení v aplikaci. Pokud znáš míry ze svého kola, přenes je – v aplikaci Wahoo je na to i průvodce (<em>Bike Fit</em>). Jinak postupuj podle těchto kroků:</p>
+
+      <figure>
+        <svg viewBox="0 0 640 360" role="img" aria-label="Schéma kola s očíslovanými místy nastavení">
+          <g fill="none" stroke="#1a1f2b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+            <!-- základna -->
+            <path d="M80 320 H560"/>
+            <path d="M150 320 V300 M490 320 V300"/>
+            <!-- rám -->
+            <path d="M150 300 L300 230 L470 300"/>
+            <!-- sedlovka -->
+            <path d="M300 230 L260 110"/>
+            <!-- představec / hlava -->
+            <path d="M300 230 L430 210 L455 120"/>
+          </g>
+          <!-- sedlo -->
+          <path d="M210 100 Q260 88 300 100 L300 108 Q255 104 215 110 Z" fill="#1a1f2b"/>
+          <!-- řídítka -->
+          <path d="M455 120 L505 118 Q530 120 528 145 Q526 165 505 168" fill="none" stroke="#1a1f2b" stroke-width="6" stroke-linecap="round"/>
+          <!-- klika -->
+          <circle cx="300" cy="230" r="34" fill="none" stroke="#9aa3b2" stroke-width="3" stroke-dasharray="6 6"/>
+          <path d="M300 230 L325 262" stroke="#1a1f2b" stroke-width="6" stroke-linecap="round"/>
+          <rect x="318" y="260" width="26" height="8" rx="2" fill="#1a1f2b"/>
+
+          <!-- šipky nastavení -->
+          <g stroke="#0065bd" stroke-width="3" fill="none" stroke-linecap="round">
+            <path d="M232 160 V200 M232 160 l-6 8 M232 160 l6 8 M232 200 l-6 -8 M232 200 l6 -8"/>
+            <path d="M225 75 H285 M225 75 l8 -6 M225 75 l8 6 M285 75 l-8 -6 M285 75 l-8 6"/>
+            <path d="M480 150 V190 M480 150 l-6 8 M480 150 l6 8 M480 190 l-6 -8 M480 190 l6 -8"/>
+            <path d="M470 95 H530 M470 95 l8 -6 M470 95 l8 6 M530 95 l-8 -6 M530 95 l-8 6"/>
+          </g>
+
+          <!-- čísla -->
+          <g font-family="system-ui, sans-serif" font-size="16" font-weight="700" text-anchor="middle">
+            <circle cx="200" cy="180" r="15" fill="#0065bd"/><text x="200" y="186" fill="#fff">1</text>
+            <circle cx="255" cy="45" r="15" fill="#0065bd"/><text x="255" y="51" fill="#fff">2</text>
+            <circle cx="510" cy="170" r="15" fill="#0065bd"/><text x="510" y="176" fill="#fff">3</text>
+            <circle cx="500" cy="65" r="15" fill="#0065bd"/><text x="500" y="71" fill="#fff">4</text>
+            <circle cx="365" cy="285" r="15" fill="#0065bd"/><text x="365" y="291" fill="#fff">5</text>
+          </g>
+        </svg>
+        <figcaption>Schéma míst nastavení. <span class="todo" style="display:inline;padding:2px 8px">nahradit fotkami reálného kola s vyznačenými páčkami a šrouby</span></figcaption>
+      </figure>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Co nastavuješ</th><th>Čím</th><th>Jak poznat správnou polohu</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td><strong>Výška sedla</strong></td><td><span class="todo" style="display:inline;padding:2px 6px">páčka / šroub – doplnit</span></td><td>Pata na pedálu v dolní úvrati → noha skoro propnutá. Při šlapání špičkou lehce pokrčené koleno (~25–35°).</td></tr>
+            <tr><td>2</td><td><strong>Sedlo vpřed / vzad</strong></td><td><span class="todo" style="display:inline;padding:2px 6px">doplnit</span></td><td>Kliky vodorovně → koleno přední nohy zhruba nad osou pedálu.</td></tr>
+            <tr><td>3</td><td><strong>Výška řídítek</strong></td><td><span class="todo" style="display:inline;padding:2px 6px">doplnit</span></td><td>Začátečníci: řídítka ve výšce sedla nebo lehce pod ní.</td></tr>
+            <tr><td>4</td><td><strong>Dosah řídítek</strong></td><td><span class="todo" style="display:inline;padding:2px 6px">doplnit</span></td><td>Ruce na madlech pák, lokty lehce pokrčené, ramena uvolněná.</td></tr>
+            <tr><td>5</td><td><strong>Délka klik</strong></td><td><span class="todo" style="display:inline;padding:2px 6px">doplnit – nastavuje jen správce?</span></td><td>Obvykle 170–172,5 mm. Pokud si nejsi jistý, neměň.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <p><strong>Tip:</strong> Na sedlovce a představci jsou stupnice. Zapiš si svoje čísla (např. do poznámek v telefonu) – příště si kolo nastavíš za 30 vteřin.</p>
+      </div>
+      <div class="callout warn">
+        <p><strong>Bezpečnost:</strong> Než si sedneš, zkontroluj, že jsou všechny páčky a šrouby <strong>pevně dotažené</strong>. Nastavuj jen na stojícím kole.</p>
+      </div>
+
+      <!-- ============ 3. ROUVY ============ -->
+      <h2 id="rouvy">3. Propojení s ROUVY a první jízda</h2>
+
+      <h3>Přihlášení (licence ČVUT)</h3>
+      <p>ČVUT má pro ROUVY firemní (enterprise) licenci – nemusíš platit předplatné.</p>
+      <div class="todo">doplnit postup aktivace: registrace pod @cvut.cz e-mailem? pozvánka od správce? sdílený účet na tabletu u kola?</div>
+
+      <h3>Spárování kola</h3>
+      <ol class="steps">
+        <li><strong>Zavři aplikaci Wahoo</strong> (i na pozadí). Trenažér by měla ovládat vždy jen jedna aplikace.</li>
+        <li>Otevři <strong>ROUVY</strong>, přihlas se a jdi do <em>Zařízení / Pair devices</em>.</li>
+        <li>U položky <strong>Smart trenažér</strong> vyber <strong>KICKR BIKE</strong> se správným ID. Kolo zároveň posílá <em>výkon, kadenci i rychlost</em> – ty se spárují automaticky.</li>
+        <li>Volitelně připoj i vlastní <strong>hrudní pás</strong> pro měření tepu.</li>
+        <li>Lehce zašlapej a zkontroluj, že ROUVY ukazuje výkon (W) a kadenci.</li>
+      </ol>
+
+      <h3>Jak začít jezdit</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Režim v ROUVY</th><th>Pro koho</th><th>Jak se chová kolo</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Trasy (Routes)</strong></td><td>Volná jízda po reálných trasách s videem</td><td>Odpor podle sklonu, řadíš sám tlačítky na pákách</td></tr>
+            <tr><td><strong>Tréninky (Workouts)</strong></td><td>Strukturovaný trénink podle FTP</td><td>Režim ERG – výkon drží kolo, převody nemají vliv</td></tr>
+            <tr><td><strong>Závody a skupinové jízdy</strong></td><td>Jízda s ostatními online</td><td>Jako trasy</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        <p><strong>Na první jízdu</strong> doporučujeme krátkou rovinatou trasu (20–30 min), ať si zvykneš na řazení a odpor.</p>
+      </div>
+
+      <!-- ============ 4. PO JÍZDĚ ============ -->
+      <h2 id="po-jizde">4. Po jízdě</h2>
+      <ol class="steps">
+        <li>Ukonči jízdu v ROUVY a ulož ji (může se automaticky nahrát do Stravy / Garmin Connect, pokud si je propojíš).</li>
+        <li>V ROUVY <strong>odpáruj kolo</strong> nebo zavři aplikaci, ať se další jezdec může připojit.</li>
+        <li><strong>Otři pot</strong> z rámu, řídítek a sedla.</li>
+        <li>Vrať převody na výchozí nastavení, pokud jsi je měnil.</li>
+      </ol>
+
+      <!-- ============ PROBLÉMY ============ -->
+      <h2 id="problemy">Když něco nefunguje</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Problém</th><th>Řešení</th></tr></thead>
+          <tbody>
+            <tr><td>ROUVY kolo nenajde</td><td>Zavři Wahoo aplikaci, vypni a zapni Bluetooth, případně kolo na 10 s vypni ze sítě. Zkontroluj, že se na něj nepřipojil někdo jiný.</td></tr>
+            <tr><td>Nejde řadit</td><td>V režimu ERG se neřadí – to je v pořádku. Jinak zkontroluj spárování v aplikaci Wahoo.</td></tr>
+            <tr><td>Kolo vrže / něco je volné</td><td>Přestaň jezdit a napiš správci (viz kontakt na úvodní stránce).</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>Ústav tělesné výchovy a sportu ČVUT v Praze</span>
+      <span>Neoficiální informační stránka</span>
+    </div>
+  </footer>
+</body>
+</html>
