@@ -183,7 +183,13 @@
       f.date.max = isoDate(last);
       f.date.value = isoDate(today);
       setEnabled(true);
-      return loadDay();
+      return loadDay().then(function () {
+        // Dnes už nic volného (např. večer po zavírací době) → nabídni rovnou zítřek.
+        if (!f.start.value && r.maxDaysAhead > 0) {
+          f.date.value = isoDate(new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1));
+          return loadDay();
+        }
+      });
     })
     .catch(function (err) { setStatus("Rezervace se nepodařilo načíst: " + err.message, "error"); });
 

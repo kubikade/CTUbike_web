@@ -4,7 +4,7 @@ window.SITE_CONFIG = {
   timezone: "Europe/Prague",
 
   // URL nasazené Apps Script web appky (končí na /exec), viz apps-script/Code.gs.
-  bookingApiUrl: "",
+  bookingApiUrl: "https://script.google.com/macros/s/AKfycbz983Pa_nNEz0crtJDRtOFjHXaNwqQIXgFT6XKx0iqxXlyuzbaOqEr_68nC6ysNkxOGmQ/exec",
 
   // Každé kolo má vlastní veřejný kalendář (pod účtem utvs.smartbike@gmail.com).
   // Kolo s prázdným calendarId se v kalendáři na webu nezobrazí.
