@@ -9,7 +9,7 @@ window.SITE_CONFIG = {
     {
       name: "Bike1",
       // Nastavení kalendáře → Integrace kalendáře → ID kalendáře, např. "abc123...@group.calendar.google.com"
-      calendarId: "",
+      calendarId: "3abb68883906c09a737edb7b2de51e66a85ced4f693d84a620ad1a0058915af7@group.calendar.google.com",
       // Odkaz na rezervační stránku (plán schůzek), např. "https://calendar.app.google/XXXXXXXX"
       bookingUrl: "",
       color: "#0065bd",
