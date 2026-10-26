@@ -271,6 +271,67 @@ kbd {
   border: 0;
   display: block;
 }
+.booking {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin: 24px 0;
+}
+.form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 20px;
+}
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field.full { grid-column: 1 / -1; }
+.field label, .field .label { font-size: 14px; font-weight: 600; }
+.field input, .field select {
+  font: inherit;
+  font-size: 16px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  width: 100%;
+}
+.field input:focus, .field select:focus {
+  outline: 2px solid var(--cvut-blue);
+  outline-offset: 1px;
+  border-color: var(--cvut-blue);
+}
+.field input:disabled, .field select:disabled { background: var(--bg-soft); color: var(--muted); }
+.form .btn { align-self: flex-start; cursor: pointer; font: inherit; font-weight: 600; }
+.form .btn:disabled { opacity: .45; cursor: not-allowed; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.form-status { margin: 4px 0 0; font-size: 15px; color: var(--muted); min-height: 1.5em; }
+.form-status.ok { color: #1a7f37; font-weight: 600; }
+.form-status.error { color: #c62828; }
+
+.timeline { padding-bottom: 20px; }
+.timeline-bar {
+  position: relative;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--cvut-blue-light);
+  overflow: hidden;
+}
+.timeline-busy {
+  position: absolute;
+  top: 0; bottom: 0;
+  background: var(--cvut-blue);
+}
+.timeline-labels { position: relative; height: 18px; margin-top: 4px; }
+.timeline-labels span {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: var(--muted);
+}
+.timeline-labels span:first-child { transform: none; }
+.timeline-labels span:last-child { transform: translateX(-100%); }
+.timeline-closed { margin: 0; color: var(--muted); }
+
 .subscribe { list-style: none; padding: 0; }
 .subscribe li { margin: 6px 0; }
 .subscribe .dot {
@@ -300,4 +361,6 @@ kbd {
   .info div { border-right: 0; border-bottom: 1px solid var(--line); }
   .info div:last-child { border-bottom: 0; }
   .calendar-frame iframe { height: 520px; }
+  .form { grid-template-columns: 1fr; }
+  .booking { padding: 16px; }
 }

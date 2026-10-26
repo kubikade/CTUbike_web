@@ -26,10 +26,57 @@
   <main>
     <div class="wrap">
       <h1>Rezervace</h1>
-      <p class="lead">V kalendáři vidíš, kdy jsou kola obsazená. Volný termín si zarezervuješ přes rezervační formulář – po potvrzení ti přijde e-mail s pozvánkou.</p>
+      <p class="lead">Vyber kolo, den a čas, na jak dlouho potřebuješ. Na e-mail ti přijde odkaz, kterým rezervaci potvrdíš.</p>
 
-      <div class="btn-row" id="booking-links"></div>
+      <section class="booking">
+        <form id="booking-form" class="form" novalidate>
+          <div class="field">
+            <label for="f-bike">Kolo</label>
+            <select id="f-bike" name="bike" required></select>
+          </div>
+          <div class="field">
+            <label for="f-date">Den</label>
+            <input type="date" id="f-date" name="date" required>
+          </div>
+          <div class="field full">
+            <span class="label">Obsazenost dne</span>
+            <div class="timeline" id="timeline" aria-live="polite"></div>
+          </div>
+          <div class="field">
+            <label for="f-start">Začátek</label>
+            <select id="f-start" name="start" required></select>
+          </div>
+          <div class="field">
+            <label for="f-duration">Délka</label>
+            <select id="f-duration" name="duration" required></select>
+          </div>
+          <div class="field">
+            <label for="f-name">Jméno a příjmení</label>
+            <input id="f-name" name="name" autocomplete="name" required minlength="2" maxlength="80">
+          </div>
+          <div class="field">
+            <label for="f-email">E-mail ČVUT</label>
+            <input type="email" id="f-email" name="email" autocomplete="email" required placeholder="username@fel.cvut.cz">
+          </div>
+          <!-- past na roboty: skryté pole, které člověk nevyplní -->
+          <div class="hp" aria-hidden="true">
+            <label for="f-website">Web</label>
+            <input id="f-website" name="website" tabindex="-1" autocomplete="off">
+          </div>
+          <div class="field full">
+            <button class="btn" type="submit">Rezervovat</button>
+            <p class="form-status" id="form-status" role="status"></p>
+          </div>
+        </form>
+      </section>
 
+      <h2>Pravidla rezervací</h2>
+      <ul id="rules">
+        <li>Pravidla se načítají z rezervačního systému…</li>
+      </ul>
+      <p>Při zpoždění o víc než 15 minut může kolo využít někdo jiný.</p>
+
+      <h2>Kalendář obsazenosti</h2>
       <div class="calendar-frame" id="calendar"></div>
 
       <section>
@@ -38,16 +85,8 @@
         <ul class="subscribe" id="subscribe-links"></ul>
       </section>
 
-      <h2>Pravidla rezervací</h2>
-      <ul>
-        <li>Jedna rezervace = <strong>1 kolo na 60 minut</strong>. <span class="todo" style="display:inline;padding:2px 8px">potvrdit délku slotu a počet kol</span></li>
-        <li>Rezervovat lze nejdříve <strong>7 dní</strong> dopředu.</li>
-        <li>Pokud nemůžeš přijít, <strong>zruš rezervaci</strong> odkazem v potvrzovacím e-mailu.</li>
-        <li>Při zpoždění o víc než 15 minut může kolo využít někdo jiný.</li>
-      </ul>
-
       <div class="callout">
-        <p><strong>Ochrana soukromí:</strong> veřejný kalendář ukazuje jen obsazenost („Obsazeno“), ne jména rezervujících.</p>
+        <p><strong>Ochrana soukromí:</strong> veřejný kalendář ukazuje jen obsazenost („Obsazeno“), ne jména rezervujících. Jméno a e-mail vidí jen správce.</p>
       </div>
     </div>
   </main>
@@ -60,7 +99,8 @@
   </footer>
 
   <!-- ?v= zvyš při změně skriptů, ať prohlížeče nenačtou starou verzi z cache -->
-  <script src="assets/js/config.js?v=3"></script>
-  <script src="assets/js/calendar.js?v=2"></script>
+  <script src="assets/js/config.js?v=4"></script>
+  <script src="assets/js/calendar.js?v=3"></script>
+  <script src="assets/js/booking.js?v=1"></script>
 </body>
 </html>

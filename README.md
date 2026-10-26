@@ -6,10 +6,12 @@ Statický web (rozcestník) pro smart trenažéry **Wahoo KICKR Bike Pro** v pos
 ```
 index.html          rozcestník
 navod.html          návod: Wahoo app → posed → ROUVY → po jízdě
-rezervace.html      vložený Google kalendář + rezervace
+rezervace.html      rezervační formulář + vložený Google kalendář
 assets/css/style.css
-assets/js/config.js   ← ID kalendáře a rezervační odkaz (jediné místo k úpravě)
-assets/js/calendar.js
+assets/js/config.js   ← ID kalendářů a URL rezervačního API (jediné místo k úpravě webu)
+assets/js/calendar.js vložený kalendář a odkazy na odběr
+assets/js/booking.js  rezervační formulář
+apps-script/          backend rezervací (Google Apps Script), kopíruje se ručně do script.google.com
 ```
 
 Místa, která je potřeba doplnit, jsou na webu označená rámečkem **TODO** (`class="todo"`).
@@ -28,33 +30,53 @@ python -m http.server 8000
 2. *Settings → Pages → Build and deployment → Source: Deploy from a branch → `main` / `(root)`*.
 3. Web poběží na `https://<uživatel-nebo-organizace>.github.io/<repo>/`.
 
-## Rezervace přes Google kalendář
+## Rezervace (Google Apps Script)
 
-Google umí obojí, co potřebujeme:
+```
+Web (GitHub Pages)  ──fetch──▶  Apps Script web app  ──▶  kalendáře Bike1, Bike2
+ rezervace.html                  apps-script/Code.gs        (účet utvs.smartbike@gmail.com)
+ assets/js/booking.js            běží pod účtem gymu
+```
 
-- **Veřejný kalendář** – lze vložit do webu (iframe) a kdokoli si ho může přidat k odběru (Google / iCal URL pro Outlook a Apple).
-- **Plán schůzek (Appointment schedule)** – rezervační stránka s volnými sloty, kde si člověk sám vybere termín; rezervace se objeví v kalendáři a rezervující dostane e-mail s pozvánkou a odkazem na zrušení.
+- Jezdec vybere na webu kolo, den, začátek a **libovolnou délku** (po 30 min, max. 2 h).
+- Skript zkontroluje pravidla a volný termín a zapíše událost **přímo do kalendáře kola**.
+- Přijde mu e-mail s odkazem **Potvrdit** (do 30 min, jinak rezervace propadne) a **Zrušit**.
+- Veřejný kalendář na webu ukazuje jen „Obsazeno“. Jméno a e-mail jsou v popisu události, který vidí jen správce.
+- Správce může čas zablokovat ručně: stačí v kalendáři kola vytvořit libovolnou událost (např. „Servis“). Celodenní událost zablokuje celý den.
 
-### Doporučené nastavení
+Pravidla (otevírací doba, délky, limit na den, povolené domény e-mailů) jsou v `CONFIG` na začátku `apps-script/Code.gs`.
 
-Kalendáře spravuje účet **utvs.smartbike@gmail.com**. Každé kolo má **vlastní kalendář** (`Bike1`, `Bike2`) a vlastní plán schůzek; hlavní kalendář účtu se nesdílí.
+### 1. Kalendáře kol
 
-Pro každé kolo:
+Pro každé kolo pod účtem **utvs.smartbike@gmail.com**:
 
-1. **Vytvoř kalendář:** *Nastavení → Přidat kalendář → Vytvořit nový kalendář* → název `Bike1`.
-2. **Zveřejni ho:** *Nastavení kalendáře Bike1 → Oprávnění k přístupu k událostem → Zpřístupnit veřejnosti* → **„Zobrazit pouze informace o volném čase / zaneprázdnění (skrýt podrobnosti)“**. Veřejnost uvidí jen „Obsazeno“, ne jména (GDPR).
-3. **ID kalendáře:** *Integrace kalendáře → ID kalendáře* (`…@group.calendar.google.com`) zkopíruj do `bikes[].calendarId` v `assets/js/config.js`.
-4. **Plán schůzek:** *Vytvořit → Plán schůzek* → název `Bike1`, délka slotu (např. 60 min), hodiny podle otvíračky, rezervační okno max. 7 dní dopředu.
-   - Pokud jde vybrat, ve kterém kalendáři se rezervace vytvářejí, zvol `Bike1`.
-   - U *Kontrolovat dostupnost v kalendářích* nech zaškrtnutý jen `Bike1`, jinak by rezervace jednoho kola blokovala druhé.
-   - Odkaz na rezervační stránku zkopíruj do `bikes[].bookingUrl`.
+1. *Nastavení → Přidat kalendář → Vytvořit nový kalendář* → `Bike1`.
+2. *Oprávnění k přístupu k událostem → Zpřístupnit veřejnosti* → **„Zobrazit pouze informace o volném čase / zaneprázdnění (skrýt podrobnosti)“**.
+   ⚠️ Nikdy nepřepínej na „zobrazit všechny podrobnosti“, zveřejnila by se jména a e-maily.
+3. *Integrace kalendáře → ID kalendáře* zapiš do:
+   - `CONFIG.BIKES` v `apps-script/Code.gs`,
+   - `bikes[].calendarId` v `assets/js/config.js` (stejný název kola).
 
-Kolo s prázdným `calendarId` se na webu nezobrazí, takže `Bike2` stačí doplnit, až bude potřeba. Web vloží všechny kalendáře do jednoho týdenního pohledu (každé kolo jinou barvou, na mobilu seznam) a ke každému kolu přidá tlačítko pro rezervaci a odkazy na odběr.
+### 2. Nasazení skriptu
 
-> **Pozor:** u bezplatného Gmail účtu může Google vytvářet rezervace z plánu schůzek jen do **hlavního** kalendáře. Pokud v nastavení plánu výběr kalendáře chybí, řešení je ruční: rezervace se objeví v hlavním kalendáři a je potřeba ji přesunout do `Bike1`/`Bike2` (u události *Kalendář → Bike1*), nebo zvážit Microsoft Bookings / Cal.com.
+1. Přihlas se jako **utvs.smartbike@gmail.com** a otevři [script.google.com](https://script.google.com) → **Nový projekt**, pojmenuj ho např. `Rezervace kol`.
+2. Obsah souboru `Code.gs` nahraď obsahem `apps-script/Code.gs` z repozitáře.
+3. *Nastavení projektu (ozubené kolo)* → zaškrtni **Zobrazovat v editoru soubor manifestu appsscript.json** → v editoru přepiš `appsscript.json` obsahem `apps-script/appsscript.json` (nastaví časové pásmo Praha).
+4. V editoru vyber funkci **`setup`** a klikni **Spustit**. Google si vyžádá oprávnění:
+   *Zkontrolovat oprávnění → účet → Rozšířené → Přejít na Rezervace kol (nebezpečné) → Povolit.*
+   Varování je normální, skript běží pod vlastním účtem a Google ho neověřoval. `setup` nastaví mazání nepotvrzených rezervací každých 10 minut.
+5. **Nasadit → Nové nasazení** → typ **Webová aplikace**:
+   - *Spustit jako:* **Já** (utvs.smartbike@gmail.com)
+   - *Kdo má přístup:* **Kdokoli**
+6. Zkopíruj **URL webové aplikace** (končí na `/exec`) do `bookingApiUrl` v `assets/js/config.js`.
 
-### Alternativy, kdyby Google nestačil
+**Kontrola:** otevři v prohlížeči `<URL>/exec?action=config`. Měl by se zobrazit JSON s `"ok":true`.
 
-- **Microsoft Bookings** (ČVUT má Microsoft 365) – podobné rezervace s podporou více „zdrojů“ (kol), přihlašování přes ČVUT účet.
-- **Cal.com** – open-source, umí víc míst na slot.
-- Formulář + ruční zápis do kalendáře – nejjednodušší, ale pracné pro správce.
+### Změny skriptu později
+
+Po úpravě kódu: *Nasadit → Spravovat nasazení → (tužka) → Verze: Nová verze → Nasadit*. URL zůstane stejná.
+Pozor: *Nové nasazení* by vytvořilo novou URL a web by přestal fungovat, dokud ji nezměníš v `config.js`.
+
+### Limity
+
+Bezplatný Gmail účet může odeslat ~100 e-mailů denně, to je ~100 rezervací za den. Pro dvě kola to stačí.
