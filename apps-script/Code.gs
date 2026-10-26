@@ -375,6 +375,8 @@ function sendConfirmationEmail_(email, name, bike, start, end, token) {
       '<p><a href="' + confirmUrl + '"' + link + ' style="' + btn + 'background:#0065bd;color:#fff">Potvrdit rezervaci</a></p>' +
       '<p style="color:#5b6474;font-size:14px">Nemůžeš přijít? <a href="' + cancelUrl + '"' + link + '>Zrušit rezervaci</a> ' +
       '(odkaz si schovej, platí i po potvrzení).</p>' +
+      '<p style="color:#5b6474;font-size:13px">Tlačítko nefunguje? Zkopíruj tento odkaz do nové záložky prohlížeče:<br>' +
+      '<span style="word-break:break-all">' + escape_(confirmUrl) + '</span></p>' +
       '</div>',
   });
 }
@@ -399,7 +401,11 @@ function page_(r, token) {
     (r.canCancel ? '<p><a href="' + escape_(actionUrl_('cancel', token)) + '" target="_top">Zrušit rezervaci</a></p>' : '') +
     '<p><a href="' + CONFIG.SITE_URL + '" target="_top">← Zpět na rezervace</a></p>' +
     '</div>';
-  return HtmlService.createHtmlOutput(html).setTitle(r.title);
+  // ALLOWALL: některé webmaily (např. Horde) otevírají odkazy uvnitř rámu se zprávou;
+  // bez toho by Google stránku v rámu odmítl zobrazit a kliknutí by „nic nedělalo“.
+  return HtmlService.createHtmlOutput(html)
+    .setTitle(r.title)
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
 function escape_(s) {
