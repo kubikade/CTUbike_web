@@ -68,7 +68,9 @@ Pro každé kolo pod účtem **utvs.smartbike@gmail.com**:
 5. **Nasadit → Nové nasazení** → typ **Webová aplikace**:
    - *Spustit jako:* **Já** (utvs.smartbike@gmail.com)
    - *Kdo má přístup:* **Kdokoli**
-6. Zkopíruj **URL webové aplikace** (končí na `/exec`) do `bookingApiUrl` v `assets/js/config.js`.
+6. Zkopíruj **URL webové aplikace** (končí na `/exec`) do:
+   - `bookingApiUrl` v `assets/js/config.js`,
+   - `CONFIG.WEB_APP_URL` v `Code.gs` (z ní se skládají odkazy Potvrdit / Zrušit v e-mailech) → ulož a nasaď novou verzi (viz níže).
 
 **Kontrola:** otevři v prohlížeči `<URL>/exec?action=config`. Měl by se zobrazit JSON s `"ok":true`.
 

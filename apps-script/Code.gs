@@ -7,7 +7,8 @@
  *   GET  ?action=day&bike=Bike1&date=…   otevírací doba a obsazené časy daného dne
  *   POST {bike, date, start, duration, name, email}   nová rezervace
  *   GET  ?action=confirm&token=…         potvrzení z e-mailu
- *   GET  ?action=cancel&token=…          zrušení z e-mailu
+ *   GET  ?action=cancel&token=…          dotaz „Opravdu zrušit?“ (odkaz z e-mailu)
+ *   GET  ?action=cancel&token=…&sure=1   zrušení
  *
  * Postup nasazení je v README.md (sekce „Rezervace“).
  */
@@ -17,6 +18,10 @@ const CONFIG = {
 
   // Kam vedou odkazy „Zpět na web“ ze stránek potvrzení / zrušení.
   SITE_URL: 'https://kubikade.github.io/CTUbike_web/rezervace.html',
+
+  // URL nasazené web appky (stejná jako bookingApiUrl v assets/js/config.js). Z ní se skládají
+  // odkazy v e-mailech – ScriptApp.getService().getUrl() často vrací neveřejnou /dev adresu.
+  WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbz983Pa_nNEz0crtJDRtOFjHXaNwqQIXgFT6XKx0iqxXlyuzbaOqEr_68nC6ysNkxOGmQ/exec',
 
   // Název kola → ID jeho kalendáře. Názvy musí odpovídat bikes[].name v assets/js/config.js.
   BIKES: {
@@ -55,7 +60,7 @@ function doGet(e) {
       case 'config': return json_(publicConfig_());
       case 'day': return json_(getDay_(p.bike, p.date));
       case 'confirm': return page_(confirm_(p.token));
-      case 'cancel': return page_(cancel_(p.token));
+      case 'cancel': return page_(p.sure === '1' ? cancel_(p.token) : cancelPrompt_(p.token));
       default: return json_({ ok: false, error: 'Neznámá akce.' });
     }
   } catch (err) {
@@ -193,6 +198,21 @@ function confirm_(token) {
   };
 }
 
+/**
+ * Zrušení je dvoukrokové: poštovní skenery odkazů (např. Microsoft Safe Links) otevírají odkazy
+ * z e-mailů automaticky a jednokrokový odkaz by rezervaci zrušil bez vědomí jezdce.
+ */
+function cancelPrompt_(token) {
+  const found = findByToken_(token);
+  if (!found) return { title: 'Rezervace nenalezena', text: 'Rezervace už byla zrušena nebo propadla.' };
+  const ev = found.event;
+  return {
+    title: 'Zrušit rezervaci?',
+    text: describe_(found.bike, ev.getStartTime(), ev.getEndTime()),
+    action: { label: 'Ano, zrušit rezervaci', url: actionUrl_('cancel', token) + '&sure=1' },
+  };
+}
+
 function cancel_(token) {
   const found = findByToken_(token);
   if (!found) return { title: 'Rezervace nenalezena', text: 'Rezervace už byla zrušena nebo propadla.' };
@@ -327,7 +347,7 @@ function describe_(bike, start, end) {
 }
 
 function actionUrl_(action, token) {
-  return ScriptApp.getService().getUrl() + '?action=' + action + '&token=' + encodeURIComponent(token);
+  return CONFIG.WEB_APP_URL + '?action=' + action + '&token=' + encodeURIComponent(token);
 }
 
 function sendConfirmationEmail_(email, name, bike, start, end, token) {
@@ -363,7 +383,9 @@ function page_(r) {
     '<div style="font-family:system-ui,sans-serif;max-width:520px;margin:48px auto;padding:0 16px;color:#1a1f2b">' +
     '<h1 style="color:#0065bd;font-size:26px">' + escape_(r.title) + '</h1>' +
     '<p style="font-size:17px;line-height:1.6">' + escape_(r.text) + '</p>' +
-    (r.cancelUrl ? '<p><a href="' + r.cancelUrl + '" target="_top">Zrušit rezervaci</a></p>' : '') +
+    (r.action ? '<p><a href="' + escape_(r.action.url) + '" target="_top" style="display:inline-block;padding:10px 18px;' +
+      'border-radius:8px;background:#c62828;color:#fff;text-decoration:none;font-weight:600">' + escape_(r.action.label) + '</a></p>' : '') +
+    (r.cancelUrl ? '<p><a href="' + escape_(r.cancelUrl) + '" target="_top">Zrušit rezervaci</a></p>' : '') +
     '<p><a href="' + CONFIG.SITE_URL + '" target="_top">← Zpět na rezervace</a></p>' +
     '</div>';
   return HtmlService.createHtmlOutput(html).setTitle(r.title);
